@@ -19,6 +19,7 @@
   "homepage": "https://github.com/butchered-snake/server#readme",
   "dependencies": {
     "socket.io": "^3.1.2",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "winston": "^3.3.3"
   }
 }
