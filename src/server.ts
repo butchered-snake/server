@@ -2,6 +2,7 @@ import log from './log';
 import * as config from './config';
 import * as http from 'http';
 import * as sio from 'socket.io';
+import addEventHandler from './handler';
 
 export default class Server {
     readonly httpServer: http.Server;
@@ -23,18 +24,13 @@ export default class Server {
                 log.info("received event %s with args %s", eventName, JSON.stringify(args));
             });
 
+            addEventHandler(socket);
+
             socket.on("disconnect", (reason: string) => {
                 log.info("client disconnected: %s", reason);
             });
         });
 
-/*io.on("connection", (socket: Socket) => {
-    console.log("nee");
-    socket.on("create", (message: string, s: string) => {
-        console.log("da will jemand was erstellen lol: " + message);
-        console.log(s);
-    });
-});*/
     }
 
     listen(): void {
