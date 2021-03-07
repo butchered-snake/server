@@ -7,12 +7,14 @@ class Game {
     private _offer: string;
     private _hasValidOffer: boolean;
     private _adminSocket: sio.Socket;
+    private _takenNames: Array<string>;
 
     constructor(adminSocket: sio.Socket, initialOffer: string) {
         this.id = uuidv4();
         this._adminSocket = adminSocket;
         this._offer = initialOffer;
         this._hasValidOffer = true;
+        this._takenNames = new Array<string>();
         log.debug("created game %s with offer %s", this.id, initialOffer);
     }
 
@@ -31,8 +33,16 @@ class Game {
         return this._offer;
     }
 
+    addName(name: string): boolean {
+        if (this._takenNames.includes(name)) {
+            return false;
+        }
+        this._takenNames.push(name);
+        return true;
+    }
+
     sendToAdmin(eventName: string, ...args: any[]): void {
-        this._adminSocket.emit(eventName, args);
+        this._adminSocket.emit(eventName, ...args);
     }
 };
 
@@ -62,6 +72,7 @@ export default function addEventHandler(socket: sio.Socket): void {
             log.warn("tried to join non existent game");
             return;
         }
+        log.debug("serving offer to join request for game %s", gameId);
         socket.emit("offer", game.offer);
     });
 
@@ -71,6 +82,11 @@ export default function addEventHandler(socket: sio.Socket): void {
             log.warn("tried to answer to non existent game");
             return;
         }
+        // TODO this is a hotfix and will be changed later
+        if (!game.addName(name)) {
+            log.crit("do duplicate names allowed");
+        }
+        log.debug("forewarding answer for client %s joining game %s with args %s", name, gameId, answer);
         game.sendToAdmin("answer", name, answer);
     });
 
