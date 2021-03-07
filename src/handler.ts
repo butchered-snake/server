@@ -84,7 +84,7 @@ export default function addEventHandler(socket: sio.Socket): void {
         }
         // TODO this is a hotfix and will be changed later
         if (!game.addName(name)) {
-            log.crit("do duplicate names allowed");
+            log.error("do duplicate names allowed");
         }
         log.debug("forewarding answer for client %s joining game %s with args %s", name, gameId, answer);
         game.sendToAdmin("answer", name, answer);
