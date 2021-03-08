@@ -84,10 +84,19 @@ export default function addEventHandler(socket: sio.Socket): void {
         }
         // TODO this is a hotfix and will be changed later
         if (!game.addName(name)) {
-            log.error("do duplicate names allowed");
+            log.error("no duplicate names allowed");
         }
         log.debug("forewarding answer for client %s joining game %s with args %s", name, gameId, answer);
         game.sendToAdmin("answer", name, answer);
+    });
+
+    socket.on("delete", (gameId: string) => {
+        const deleted = gameMap.delete(gameId);
+        if (deleted) {
+            log.info("deleted game with id %s", gameId);
+        } else {
+            log.warn("tried to delete non existent game: %s", gameId);
+        }
     });
 
 }
