@@ -4,33 +4,28 @@ import { v4 as uuidv4 } from 'uuid';
 
 class Game {
     readonly id: string;
-    private _offer: string;
-    private _hasValidOffer: boolean;
+    private _offers: Array<string>;
     private _adminSocket: sio.Socket;
     private _takenNames: Array<string>;
 
     constructor(adminSocket: sio.Socket, initialOffer: string) {
         this.id = uuidv4();
         this._adminSocket = adminSocket;
-        this._offer = initialOffer;
-        this._hasValidOffer = true;
+        this._offers = new Array<string>();
+        this._offers.push(initialOffer);
         this._takenNames = new Array<string>();
         log.debug("created game %s with offer %s", this.id, initialOffer);
     }
 
     set offer(o: string) {
-        log.debug("waiting to set new valid offer");
-        while (this._hasValidOffer);
-        log.debug("setting new valid offer");
-        this._offer = o;
-        this._hasValidOffer = true;
+        this._offers.push(o);
     }
     get offer(): string {
-        log.debug("waiting to get new valid offer");
-        while (!this._hasValidOffer);
-        log.debug("getting new valid offer");
-        this._hasValidOffer = false;
-        return this._offer;
+        if (this._offers.length !== 0) {
+            return this._offers.pop()!;
+        }
+        log.warn("no valid offer available");
+        return "";
     }
 
     addName(name: string): boolean {
@@ -82,7 +77,7 @@ export default function addEventHandler(socket: sio.Socket): void {
             log.warn("tried to answer to non existent game");
             return;
         }
-        // TODO this is a hotfix and will be changed later
+        // TODO this is a hotfix and might be changed later
         if (!game.addName(name)) {
             log.error("no duplicate names allowed");
         }
