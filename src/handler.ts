@@ -22,7 +22,9 @@ class Game {
     }
     get offer(): string {
         if (this._offers.length !== 0) {
-            return this._offers.pop()!;
+            let o = this._offers.pop()!;
+            log.debug("serving offer", JSON.parse(o));
+            return o;
         }
         log.warn("no valid offer available");
         return "";
@@ -77,9 +79,8 @@ export default function addEventHandler(socket: sio.Socket): void {
             log.warn("tried to answer to non existent game");
             return;
         }
-        // TODO this is a hotfix and might be changed later
         if (!game.addName(name)) {
-            log.error("no duplicate names allowed");
+            log.info("client %s is retrying to connect to game %s", name, gameId);
         }
         log.debug("forewarding answer for client %s joining game %s with args %s", name, gameId, answer);
         game.sendToAdmin("answer", name, answer);
