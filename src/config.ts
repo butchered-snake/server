@@ -9,9 +9,8 @@ function loadRequiredEnv(varName: string): string {
     return value;
 }
 
-const host: string = loadRequiredEnv("BUTCHERED_HOST");
+// more config params could be added here
 const port: number = +loadRequiredEnv("BUTCHERED_PORT");
-const applicationUri: string = host + ':' + port;
 
-export { host, port, applicationUri };
+export { port };
 
